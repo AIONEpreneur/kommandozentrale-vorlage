@@ -1,0 +1,6 @@
+# Persönliches bleibt lokal — niemals committen:
+starter/.env
+starter/config.mjs
+
+# Betriebssystem-Reste
+.DS_Store

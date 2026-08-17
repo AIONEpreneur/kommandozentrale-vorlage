@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kommandozentrale</title>
+<style>
+  /* Neutrales Grunddesign — Farben und Schrift gern anpassen (lassen). */
+  :root {
+    --grund: #f6f7f9; --karte: #ffffff; --text: #1a1d24; --leise: #6b7280;
+    --linie: #e5e7eb; --gut: #16a34a; --schlecht: #dc2626; --chip: #eef0f4;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --grund: #101319; --karte: #1a1f29; --text: #e8eaf0; --leise: #8b93a3;
+      --linie: #2a3140; --gut: #34d27b; --schlecht: #f87171; --chip: #232a37;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--grund); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 28px clamp(16px, 4vw, 48px) 64px;
+  }
+  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  h1 { font-size: 22px; letter-spacing: -0.02em; }
+  #stand { color: var(--leise); font-size: 13px; }
+  #demoHinweis {
+    display: none; margin: 14px 0 4px; padding: 10px 14px; border-radius: 10px;
+    background: color-mix(in srgb, var(--gut) 12%, var(--karte)); border: 1px solid color-mix(in srgb, var(--gut) 35%, var(--linie));
+    font-size: 14px;
+  }
+  #fehler { display: none; margin: 14px 0 4px; padding: 10px 14px; border-radius: 10px;
+    background: color-mix(in srgb, var(--schlecht) 10%, var(--karte)); border: 1px solid color-mix(in srgb, var(--schlecht) 35%, var(--linie));
+    font-size: 13px; }
+
+  /* Globale Kacheln (Umsatz, YouTube, …) — neue globale Quelle: hier eine Kachel ergänzen */
+  #global { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 22px 0; }
+  .kachel { background: var(--karte); border: 1px solid var(--linie); border-radius: 14px; padding: 16px 18px; }
+  .kachel .titel { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--leise); margin-bottom: 6px; }
+  .kachel .wert { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+  .kachel .neben { font-size: 13px; color: var(--leise); margin-top: 2px; }
+
+  /* Projekt-Karten — neue Property-Quelle: unten in zeigeProjekt() eine Zeile ergänzen */
+  #projekte { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .projekt { background: var(--karte); border: 1px solid var(--linie); border-radius: 14px; padding: 16px 18px; border-top: 3px solid var(--akzent, #7c5cff); }
+  .projekt h2 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .punkt { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .projekt .domain { font-size: 13px; margin: 2px 0 12px; }
+  .projekt .domain a { color: var(--leise); text-decoration: none; }
+  .projekt .domain a:hover { text-decoration: underline; }
+  .metriken { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+  .metrik .zahl { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
+  .metrik .label { font-size: 12px; color: var(--leise); }
+  .gitzeile { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--linie); font-size: 12.5px; color: var(--leise);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chip { display: inline-block; background: var(--chip); border-radius: 6px; padding: 1px 7px; font-size: 11.5px; margin-right: 6px; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Kommandozentrale</h1>
+    <span id="stand">lädt …</span>
+  </header>
+  <div id="demoHinweis"><strong>Demo-Modus.</strong> Das sind Beispieldaten — lege <code>starter/config.mjs</code> an (Claude hilft dir: „Lies CLAUDE.md und richte meine Kommandozentrale ein").</div>
+  <div id="fehler"></div>
+  <section id="global"></section>
+  <section id="projekte"></section>
+
+<script>
+const de = new Intl.NumberFormat("de-DE");
+const el = (id) => document.getElementById(id);
+
+function kachel(titel, wert, neben) {
+  return `<div class="kachel"><div class="titel">${titel}</div><div class="wert">${wert}</div>${neben ? `<div class="neben">${neben}</div>` : ""}</div>`;
+}
+
+function zeigeProjekt(p) {
+  const punkt = p.uptime ? `<span class="punkt" style="background:${p.uptime.ok ? "var(--gut)" : "var(--schlecht)"}"></span>` : "";
+  const metriken = [];
+  if (p.umami) {
+    metriken.push({ zahl: de.format(p.umami.besucher7t), label: "Besucher · 7 Tage" });
+    metriken.push({ zahl: de.format(p.umami.besucher30t), label: "Besucher · 30 Tage" });
+  }
+  if (p.gsc) {
+    metriken.push({ zahl: de.format(p.gsc.klicks28t), label: "Google-Klicks · 28 T." });
+    metriken.push({ zahl: de.format(p.gsc.impressionen28t), label: "Impressionen · 28 T." });
+  }
+  if (p.uptime?.ms != null) metriken.push({ zahl: p.uptime.ms + " ms", label: "Antwortzeit" });
+  // Neue Property-Quelle? Hier eine weitere Metrik pushen: if (p.meinequelle) …
+
+  const gitzeile = p.git
+    ? `<div class="gitzeile"><span class="chip">${p.git.branch}</span>${p.git.commit} · ${p.git.vor}${p.git.offen ? ` · ${p.git.offen} offene Änderung${p.git.offen === 1 ? "" : "en"}` : ""}</div>`
+    : "";
+
+  return `<article class="projekt" style="--akzent:${p.accent}">
+    <h2>${punkt}${p.name}</h2>
+    <div class="domain"><a href="https://${p.domain}" target="_blank" rel="noopener">${p.domain}</a></div>
+    <div class="metriken">${metriken.map((m) => `<div class="metrik"><div class="zahl">${m.zahl}</div><div class="label">${m.label}</div></div>`).join("")}</div>
+    ${gitzeile}
+  </article>`;
+}
+
+async function lade() {
+  const d = await fetch("/api/daten").then((r) => r.json());
+
+  el("stand").textContent = "Stand " + new Date(d.stand).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+  el("demoHinweis").style.display = d.demo ? "block" : "none";
+
+  const meldungen = Object.entries(d.fehler || {}).map(([q, m]) => `<strong>${q}:</strong> ${m}`);
+  el("fehler").style.display = meldungen.length ? "block" : "none";
+  el("fehler").innerHTML = meldungen.join("<br>");
+
+  const kacheln = [];
+  if (d.global.stripe) {
+    const s = d.global.stripe;
+    kacheln.push(kachel("Umsatz · 30 Tage", de.format(s.umsatz30t) + " " + (s.waehrung || "eur").toUpperCase(), s.zahlungen + " Zahlungen"));
+  }
+  if (d.global.youtube) {
+    const y = d.global.youtube;
+    kacheln.push(kachel("YouTube " + y.kanal, de.format(y.abonnenten) + " Abos", de.format(y.aufrufe) + " Aufrufe · " + de.format(y.videos) + " Videos"));
+  }
+  // Neue globale Quelle? Hier eine Kachel ergänzen: if (d.global.meinequelle) …
+  el("global").innerHTML = kacheln.join("");
+
+  el("projekte").innerHTML = d.properties.map(zeigeProjekt).join("");
+}
+
+lade();
+setInterval(lade, 5 * 60 * 1000); // Anzeige alle 5 Min auffrischen (Server cacht 15 Min)
+</script>
+</body>
+</html>
