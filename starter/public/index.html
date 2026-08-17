@@ -7,127 +7,292 @@
 <style>
   /* Neutrales Grunddesign — Farben und Schrift gern anpassen (lassen). */
   :root {
-    --grund: #f6f7f9; --karte: #ffffff; --text: #1a1d24; --leise: #6b7280;
-    --linie: #e5e7eb; --gut: #16a34a; --schlecht: #dc2626; --chip: #eef0f4;
+    --grund: #f6f7f9; --flaeche: #ffffff; --einzug: #eef0f4; --text: #1a1d24;
+    --leise: #6b7280; --blass: #9aa1ad; --linie: #e5e7eb; --linie-stark: #d7dae0;
+    --gut: #16a34a; --schlecht: #dc2626; --akzent-std: #7c5cff;
+    --mono: ui-monospace, "SF Mono", Menlo, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --grund: #101319; --karte: #1a1f29; --text: #e8eaf0; --leise: #8b93a3;
-      --linie: #2a3140; --gut: #34d27b; --schlecht: #f87171; --chip: #232a37;
+      --grund: #101319; --flaeche: #1a1f29; --einzug: #232a37; --text: #e8eaf0;
+      --leise: #8b93a3; --blass: #626b7d; --linie: #2a3140; --linie-stark: #3a4356;
+      --gut: #34d27b; --schlecht: #f87171;
     }
   }
   * { box-sizing: border-box; margin: 0; }
-  body {
-    background: var(--grund); color: var(--text);
-    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    padding: 28px clamp(16px, 4vw, 48px) 64px;
-  }
-  header { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
-  h1 { font-size: 22px; letter-spacing: -0.02em; }
-  #stand { color: var(--leise); font-size: 13px; }
-  #demoHinweis {
-    display: none; margin: 14px 0 4px; padding: 10px 14px; border-radius: 10px;
-    background: color-mix(in srgb, var(--gut) 12%, var(--karte)); border: 1px solid color-mix(in srgb, var(--gut) 35%, var(--linie));
-    font-size: 14px;
-  }
-  #fehler { display: none; margin: 14px 0 4px; padding: 10px 14px; border-radius: 10px;
-    background: color-mix(in srgb, var(--schlecht) 10%, var(--karte)); border: 1px solid color-mix(in srgb, var(--schlecht) 35%, var(--linie));
-    font-size: 13px; }
+  body { background: var(--grund); color: var(--text); font: 14.5px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  a { color: inherit; }
 
-  /* Globale Kacheln (Umsatz, YouTube, …) — neue globale Quelle: hier eine Kachel ergänzen */
-  #global { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 22px 0; }
-  .kachel { background: var(--karte); border: 1px solid var(--linie); border-radius: 14px; padding: 16px 18px; }
-  .kachel .titel { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--leise); margin-bottom: 6px; }
-  .kachel .wert { font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
-  .kachel .neben { font-size: 13px; color: var(--leise); margin-top: 2px; }
+  /* ---------- Shell: Seitenleiste + Inhalt ---------- */
+  .shell { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+  aside { border-right: 1px solid var(--linie); padding: 22px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .brand .eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--blass); }
+  .brand h1 { font-size: 17px; letter-spacing: -0.01em; margin-top: 2px; }
+  .navgroup { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--blass); padding: 14px 10px 4px; }
+  a.nav { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 8px; color: var(--leise); text-decoration: none; font-size: 13.5px; }
+  a.nav:hover { background: var(--einzug); color: var(--text); }
+  a.nav.active { background: var(--einzug); color: var(--text); box-shadow: inset 2px 0 0 var(--acc, var(--akzent-std)); }
+  a.nav .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--acc, var(--blass)); flex: none; }
+  .foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+  .foot button { font: inherit; font-size: 13px; cursor: pointer; border: 1px solid var(--linie); border-radius: 8px; padding: 7px 10px; background: var(--flaeche); color: var(--text); }
+  .foot button:hover { background: var(--einzug); }
+  .stamp { font-family: var(--mono); font-size: 11px; color: var(--blass); padding: 0 2px; }
+  main { padding: 26px clamp(16px, 3vw, 40px) 64px; min-width: 0; }
 
-  /* Projekt-Karten — neue Property-Quelle: unten in zeigeProjekt() eine Zeile ergänzen */
-  #projekte { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
-  .projekt { background: var(--karte); border: 1px solid var(--linie); border-radius: 14px; padding: 16px 18px; border-top: 3px solid var(--akzent, #7c5cff); }
-  .projekt h2 { font-size: 16px; display: flex; align-items: center; gap: 8px; }
-  .punkt { width: 9px; height: 9px; border-radius: 50%; flex: none; }
-  .projekt .domain { font-size: 13px; margin: 2px 0 12px; }
-  .projekt .domain a { color: var(--leise); text-decoration: none; }
-  .projekt .domain a:hover { text-decoration: underline; }
-  .metriken { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
-  .metrik .zahl { font-size: 19px; font-weight: 650; letter-spacing: -0.01em; }
-  .metrik .label { font-size: 12px; color: var(--leise); }
-  .gitzeile { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--linie); font-size: 12.5px; color: var(--leise);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .chip { display: inline-block; background: var(--chip); border-radius: 6px; padding: 1px 7px; font-size: 11.5px; margin-right: 6px; }
+  /* Präsentationsmodus: verdeckt Umsatzzahlen (Taste P) */
+  body.praes .vertraulich { filter: blur(7px); }
+
+  .pagehead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+  .pagehead h2 { font-size: 20px; letter-spacing: -0.02em; }
+  .pagehead .sub { color: var(--leise); font-size: 13px; }
+  #demoHinweis, #fehler { margin: 0 0 16px; padding: 10px 14px; border-radius: 10px; font-size: 13.5px; }
+  #demoHinweis { background: color-mix(in srgb, var(--gut) 12%, var(--flaeche)); border: 1px solid color-mix(in srgb, var(--gut) 35%, var(--linie)); }
+  #fehler { background: color-mix(in srgb, var(--schlecht) 10%, var(--flaeche)); border: 1px solid color-mix(in srgb, var(--schlecht) 35%, var(--linie)); }
+
+  /* KPI-Kacheln */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-bottom: 22px; }
+  .kpi { background: var(--flaeche); border: 1px solid var(--linie); border-radius: 12px; padding: 13px 15px; }
+  .kpi .k { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--blass); }
+  .kpi .v { font-size: 23px; font-weight: 650; letter-spacing: -0.02em; margin-top: 3px; }
+  .kpi .s { font-size: 12px; color: var(--leise); margin-top: 1px; }
+
+  .card { background: var(--flaeche); border: 1px solid var(--linie); border-radius: 12px; padding: 16px 18px; margin-bottom: 18px; }
+  .card h3 { font-size: 14px; margin-bottom: 10px; }
+  .card h3 .hint { font-weight: 400; font-size: 12px; color: var(--blass); margin-left: 6px; }
+  svg.chart { width: 100%; height: auto; display: block; }
+  .legende { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; font-size: 12.5px; color: var(--leise); }
+  .legende .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+
+  /* Status-Tabelle */
+  .tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table.status { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+  table.status th { text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--blass); font-weight: 400; padding: 6px 10px; border-bottom: 1px solid var(--linie-stark); }
+  table.status td { padding: 9px 10px; border-bottom: 1px solid var(--linie); vertical-align: middle; }
+  table.status tr:last-child td { border-bottom: none; }
+  table.status tr.rowlink { cursor: pointer; }
+  table.status tr.rowlink:hover td { background: var(--einzug); }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-size: 12.5px; }
+  .pname { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .pname .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+  .lamp { display: inline-block; width: 9px; height: 9px; border-radius: 50%; }
+  .lamp.ok { background: var(--gut); } .lamp.bad { background: var(--schlecht); }
+  .leer { color: var(--blass); }
+
+  /* Projekt-Detail */
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 900px) { .duo { grid-template-columns: 1fr; } }
+  .gitzeile { font-size: 13px; color: var(--leise); }
+  .chip { display: inline-block; background: var(--einzug); border-radius: 6px; padding: 1px 8px; font-family: var(--mono); font-size: 11.5px; margin-right: 6px; }
+  .cta { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .cta button { font: inherit; font-weight: 600; cursor: pointer; border-radius: 9px; padding: 10px 18px; background: var(--acc, var(--akzent-std)); color: #fff; border: none; }
+  .cta button:hover { filter: brightness(1.08); }
+  .cta .fb { font-size: 12px; color: var(--blass); }
+
+  /* ---------- Mobil: Seitenleiste wird zur Kopfleiste ---------- */
+  @media (max-width: 760px) {
+    .shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    aside { border-right: none; border-bottom: 1px solid var(--linie); flex-direction: row; align-items: center; flex-wrap: wrap; padding: 14px 16px; }
+    nav#nav { display: flex; overflow-x: auto; gap: 6px; scrollbar-width: none; }
+    nav#nav::-webkit-scrollbar { display: none; }
+    .navgroup { display: none; }
+    a.nav { flex: none; padding: 6px 12px; border: 1px solid var(--linie); border-radius: 999px; font-size: 13px; }
+    a.nav.active { box-shadow: inset 0 0 0 1px var(--acc, var(--akzent-std)); }
+    .foot { margin: 0 0 0 auto; flex-direction: row; align-items: center; }
+    .stamp { display: none; }
+  }
 </style>
 </head>
 <body>
-  <header>
-    <h1>Kommandozentrale</h1>
-    <span id="stand">lädt …</span>
-  </header>
-  <div id="demoHinweis"><strong>Demo-Modus.</strong> Das sind Beispieldaten — lege <code>starter/config.mjs</code> an (Claude hilft dir: „Lies CLAUDE.md und richte meine Kommandozentrale ein").</div>
-  <div id="fehler"></div>
-  <section id="global"></section>
-  <section id="projekte"></section>
+<div class="shell">
+  <aside>
+    <div class="brand">
+      <div class="eyebrow">Mein Portfolio</div>
+      <h1>Kommandozentrale</h1>
+    </div>
+    <nav id="nav"></nav>
+    <div class="foot">
+      <button id="neuladen">Neu laden</button>
+      <button id="praes" title="Verdeckt Umsatzzahlen — z. B. beim Teilen des Bildschirms (Taste P)">◉ Präsentation</button>
+      <div class="stamp" id="stamp">–</div>
+    </div>
+  </aside>
+  <main id="main"><p class="leer">Lade Daten …</p></main>
+</div>
 
 <script>
-const de = new Intl.NumberFormat("de-DE");
-const el = (id) => document.getElementById(id);
+let DATA = null;
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => (n == null ? "–" : new Intl.NumberFormat("de-DE").format(Math.round(n)));
+const eur = (n, w) => new Intl.NumberFormat("de-DE", { style: "currency", currency: (w || "eur").toUpperCase() }).format(n);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-function kachel(titel, wert, neben) {
-  return `<div class="kachel"><div class="titel">${titel}</div><div class="wert">${wert}</div>${neben ? `<div class="neben">${neben}</div>` : ""}</div>`;
+/* ---------- Diagramme (pures SVG, keine Bibliothek) ---------- */
+function lineChart(reihen, { hoehe = 190 } = {}) {
+  reihen = reihen.filter((r) => r.punkte?.length);
+  if (!reihen.length) return '<p class="leer">Noch keine Verlaufsdaten.</p>';
+  const W = 720, H = hoehe, padL = 44, padR = 8, padT = 10, padB = 22;
+  const n = Math.max(...reihen.map((r) => r.punkte.length));
+  const max = Math.max(1, ...reihen.flatMap((r) => r.punkte.map((p) => p.wert)));
+  const x = (i) => padL + (i / Math.max(1, n - 1)) * (W - padL - padR);
+  const y = (v) => padT + (1 - v / max) * (H - padT - padB);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">`;
+  for (const anteil of [0, 0.5, 1]) {
+    const v = max * anteil, yy = y(v);
+    svg += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}" stroke="currentColor" opacity="0.09"/>`;
+    svg += `<text x="${padL - 7}" y="${yy + 4}" text-anchor="end" font-size="11" fill="currentColor" opacity="0.45" font-family="var(--mono)">${fmt(v)}</text>`;
+  }
+  for (const r of reihen) {
+    const pts = r.punkte.map((p, i) => `${x(i)},${y(p.wert)}`);
+    svg += `<path d="M ${pts.join(" L ")}" fill="none" stroke="${r.farbe}" stroke-width="2" stroke-linejoin="round"/>`;
+  }
+  svg += "</svg>";
+  const legende = `<div class="legende">${reihen.map((r) => `<span><span class="dot" style="background:${r.farbe}"></span>${esc(r.name)}</span>`).join("")}</div>`;
+  return svg + legende;
 }
 
-function zeigeProjekt(p) {
-  const punkt = p.uptime ? `<span class="punkt" style="background:${p.uptime.ok ? "var(--gut)" : "var(--schlecht)"}"></span>` : "";
-  const metriken = [];
-  if (p.umami) {
-    metriken.push({ zahl: de.format(p.umami.besucher7t), label: "Besucher · 7 Tage" });
-    metriken.push({ zahl: de.format(p.umami.besucher30t), label: "Besucher · 30 Tage" });
-  }
-  if (p.gsc) {
-    metriken.push({ zahl: de.format(p.gsc.klicks28t), label: "Google-Klicks · 28 T." });
-    metriken.push({ zahl: de.format(p.gsc.impressionen28t), label: "Impressionen · 28 T." });
-  }
-  if (p.uptime?.ms != null) metriken.push({ zahl: p.uptime.ms + " ms", label: "Antwortzeit" });
-  // Neue Property-Quelle? Hier eine weitere Metrik pushen: if (p.meinequelle) …
-
-  const gitzeile = p.git
-    ? `<div class="gitzeile"><span class="chip">${p.git.branch}</span>${p.git.commit} · ${p.git.vor}${p.git.offen ? ` · ${p.git.offen} offene Änderung${p.git.offen === 1 ? "" : "en"}` : ""}</div>`
-    : "";
-
-  return `<article class="projekt" style="--akzent:${p.accent}">
-    <h2>${punkt}${p.name}</h2>
-    <div class="domain"><a href="https://${p.domain}" target="_blank" rel="noopener">${p.domain}</a></div>
-    <div class="metriken">${metriken.map((m) => `<div class="metrik"><div class="zahl">${m.zahl}</div><div class="label">${m.label}</div></div>`).join("")}</div>
-    ${gitzeile}
-  </article>`;
+function sparkline(punkte, farbe) {
+  if (!punkte?.length) return "";
+  const max = Math.max(1, ...punkte.map((p) => p.wert));
+  const pts = punkte.map((p, i) => `${(i / Math.max(1, punkte.length - 1)) * 90},${22 - (p.wert / max) * 20}`).join(" ");
+  return `<svg width="90" height="24" viewBox="0 0 90 24"><polyline points="${pts}" fill="none" stroke="${farbe}" stroke-width="1.5"/></svg>`;
 }
 
-async function lade() {
-  const d = await fetch("/api/daten").then((r) => r.json());
+/* ---------- Übersicht ---------- */
+function viewUebersicht() {
+  const ps = DATA.properties;
+  const sum = (fn) => ps.reduce((s, p) => s + (fn(p) || 0), 0);
+  const kacheln = [];
+  if (DATA.quellen.umami) {
+    kacheln.push(kpi("Besucher · 7 Tage", fmt(sum((p) => p.umami?.besucher7t))));
+    kacheln.push(kpi("Besucher · 30 Tage", fmt(sum((p) => p.umami?.besucher30t)), fmt(sum((p) => p.umami?.aufrufe30t)) + " Seitenaufrufe"));
+  }
+  if (DATA.quellen.gsc) {
+    kacheln.push(kpi("Google-Klicks · 28 T.", fmt(sum((p) => p.gsc?.klicks28t))));
+    kacheln.push(kpi("Google-Impressionen", fmt(sum((p) => p.gsc?.impressionen28t)), "Search Console · 28 Tage"));
+  }
+  if (DATA.global.stripe) {
+    const s = DATA.global.stripe;
+    kacheln.push(kpi("Umsatz · 30 Tage", `<span class="vertraulich">${eur(s.umsatz30t, s.waehrung)}</span>`, `<span class="vertraulich">${s.zahlungen} Zahlungen</span>`));
+  }
+  if (DATA.global.youtube) {
+    const y = DATA.global.youtube;
+    kacheln.push(kpi("YouTube " + esc(y.kanal), fmt(y.abonnenten) + " Abos", fmt(y.aufrufe) + " Aufrufe · " + fmt(y.videos) + " Videos"));
+  }
+  // Neue globale Quelle? Hier eine Kachel ergänzen: if (DATA.global.meinequelle) …
 
-  el("stand").textContent = "Stand " + new Date(d.stand).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
-  el("demoHinweis").style.display = d.demo ? "block" : "none";
+  const besucherReihen = ps.filter((p) => p.umami?.serie).map((p) => ({ name: p.name, farbe: p.accent, punkte: p.umami.serie }));
 
-  const meldungen = Object.entries(d.fehler || {}).map(([q, m]) => `<strong>${q}:</strong> ${m}`);
-  el("fehler").style.display = meldungen.length ? "block" : "none";
-  el("fehler").innerHTML = meldungen.join("<br>");
+  const zeilen = ps.map((p) => `
+    <tr class="rowlink" onclick="location.hash='#/p/${p.id}'">
+      <td><div class="pname"><span class="dot" style="background:${p.accent}"></span>${esc(p.name)}</div></td>
+      <td>${p.uptime ? `<span class="lamp ${p.uptime.ok ? "ok" : "bad"}"></span> <span class="leer">${p.uptime.ok ? p.uptime.ms + " ms" : "down"}</span>` : '<span class="leer">–</span>'}</td>
+      <td class="num">${p.umami ? fmt(p.umami.besucher7t) : "–"}</td>
+      <td>${p.umami?.serie ? sparkline(p.umami.serie, p.accent) : ""}</td>
+      <td class="num">${p.gsc ? fmt(p.gsc.klicks28t) : "–"}</td>
+      <td class="num">${p.gsc ? fmt(p.gsc.impressionen28t) : "–"}</td>
+      <td>${p.git ? `<span class="chip">${esc(p.git.branch)}</span><span class="leer">${esc(p.git.vor)}${p.git.offen ? " · " + p.git.offen + " offen" : ""}</span>` : '<span class="leer">–</span>'}</td>
+    </tr>`).join("");
+
+  return `
+    <div class="pagehead"><h2>Übersicht</h2><span class="sub">alle Projekte</span></div>
+    ${hinweise()}
+    <div class="kpis">${kacheln.join("")}</div>
+    ${besucherReihen.length ? `<div class="card"><h3>Besucher je Tag <span class="hint">eine Linie je Projekt · letzte 30 Tage</span></h3>${lineChart(besucherReihen)}</div>` : ""}
+    <div class="card"><h3>Alle Projekte</h3>
+      <div class="tablewrap"><table class="status">
+        <thead><tr><th>Projekt</th><th>Erreichbar</th><th class="num">Besucher 7 T.</th><th>Trend</th><th class="num">G-Klicks</th><th class="num">G-Impr.</th><th>Stand (Git)</th></tr></thead>
+        <tbody>${zeilen}</tbody>
+      </table></div>
+    </div>`;
+}
+
+/* ---------- Projekt-Detail ---------- */
+function viewProjekt(id) {
+  const p = DATA.properties.find((e) => e.id === id);
+  if (!p) return `<div class="pagehead"><h2>Projekt nicht gefunden</h2></div>`;
 
   const kacheln = [];
-  if (d.global.stripe) {
-    const s = d.global.stripe;
-    kacheln.push(kachel("Umsatz · 30 Tage", de.format(s.umsatz30t) + " " + (s.waehrung || "eur").toUpperCase(), s.zahlungen + " Zahlungen"));
+  if (p.umami) {
+    kacheln.push(kpi("Besucher · 7 Tage", fmt(p.umami.besucher7t)));
+    kacheln.push(kpi("Besucher · 30 Tage", fmt(p.umami.besucher30t), fmt(p.umami.aufrufe30t) + " Seitenaufrufe"));
   }
-  if (d.global.youtube) {
-    const y = d.global.youtube;
-    kacheln.push(kachel("YouTube " + y.kanal, de.format(y.abonnenten) + " Abos", de.format(y.aufrufe) + " Aufrufe · " + de.format(y.videos) + " Videos"));
+  if (p.gsc) {
+    kacheln.push(kpi("Google-Klicks · 28 T.", fmt(p.gsc.klicks28t)));
+    kacheln.push(kpi("Google-Impressionen", fmt(p.gsc.impressionen28t)));
   }
-  // Neue globale Quelle? Hier eine Kachel ergänzen: if (d.global.meinequelle) …
-  el("global").innerHTML = kacheln.join("");
+  if (p.uptime) kacheln.push(kpi("Erreichbarkeit", p.uptime.ok ? "online" : "down", p.uptime.ms != null ? p.uptime.ms + " ms Antwortzeit" : ""));
+  // Neue Property-Quelle? Hier eine Kachel ergänzen: if (p.meinequelle) …
 
-  el("projekte").innerHTML = d.properties.map(zeigeProjekt).join("");
+  const charts = [];
+  if (p.umami?.serie) charts.push(`<div class="card"><h3>Besucher je Tag <span class="hint">letzte 30 Tage</span></h3>${lineChart([{ name: "Besucher", farbe: p.accent, punkte: p.umami.serie }])}</div>`);
+  if (p.gsc?.serie) charts.push(`<div class="card"><h3>Google-Klicks je Tag <span class="hint">letzte 28 Tage</span></h3>${lineChart([{ name: "Klicks", farbe: p.accent, punkte: p.gsc.serie.map((e) => ({ datum: e.datum, wert: e.klicks })) }])}</div>`);
+
+  const prompt = p.continuePrompt || `Weiter am Projekt „${p.name}"${p.repo ? ` (Ordner: ${p.repo})` : ""}. Schau dir den aktuellen Stand an und schlage mir vor, was als Nächstes dran ist.`;
+
+  return `
+    <div class="pagehead"><h2>${esc(p.name)}</h2><span class="sub"><a href="https://${esc(p.domain)}" target="_blank" rel="noopener">${esc(p.domain)}</a></span></div>
+    ${hinweise()}
+    <div class="kpis">${kacheln.join("")}</div>
+    <div class="duo">${charts.join("")}</div>
+    ${p.git ? `<div class="card"><h3>Projektstand</h3><div class="gitzeile"><span class="chip">${esc(p.git.branch)}</span>${esc(p.git.commit)} · ${esc(p.git.vor)}${p.git.offen ? ` · ${p.git.offen} offene Änderung${p.git.offen === 1 ? "" : "en"}` : ""}</div></div>` : ""}
+    <div class="card"><h3>Weiterarbeiten</h3>
+      <div class="cta" style="--acc:${p.accent}">
+        <button onclick="weiterMitClaude('${p.id}', this)">Weiter mit Claude</button>
+        <span class="fb">kopiert dir den Auftrag — in Claude Code einfügen und los</span>
+      </div>
+    </div>`;
+  // Hinweis für Claude: continuePrompt pro Projekt in config.mjs überschreibbar.
 }
 
+/* ---------- Gemeinsames ---------- */
+const kpi = (k, v, s) => `<div class="kpi"><div class="k">${k}</div><div class="v">${v}</div>${s ? `<div class="s">${s}</div>` : ""}</div>`;
+
+function hinweise() {
+  let html = "";
+  if (DATA.demo) html += `<div id="demoHinweis"><strong>Demo-Modus.</strong> Das sind Beispieldaten — lege <code>starter/config.mjs</code> an (Claude hilft dir: „Lies CLAUDE.md und richte meine Kommandozentrale ein").</div>`;
+  const meldungen = Object.entries(DATA.fehler || {}).map(([q, m]) => `<strong>${esc(q)}:</strong> ${esc(m)}`);
+  if (meldungen.length) html += `<div id="fehler">${meldungen.join("<br>")}</div>`;
+  return html;
+}
+
+function weiterMitClaude(id, knopf) {
+  const p = DATA.properties.find((e) => e.id === id);
+  const prompt = p?.continuePrompt || `Weiter am Projekt „${p?.name}"${p?.repo ? ` (Ordner: ${p.repo})` : ""}. Schau dir den aktuellen Stand an und schlage mir vor, was als Nächstes dran ist.`;
+  navigator.clipboard.writeText(prompt).then(() => {
+    knopf.textContent = "Kopiert ✓";
+    setTimeout(() => (knopf.textContent = "Weiter mit Claude"), 1600);
+  });
+}
+
+function renderNav() {
+  const aktiv = location.hash || "#/";
+  $("nav").innerHTML =
+    `<a class="nav ${aktiv === "#/" ? "active" : ""}" href="#/"><span class="dot"></span>Übersicht</a>` +
+    `<div class="navgroup">Projekte</div>` +
+    DATA.properties.map((p) =>
+      `<a class="nav ${aktiv === "#/p/" + p.id ? "active" : ""}" href="#/p/${p.id}" style="--acc:${p.accent}"><span class="dot"></span>${esc(p.name)}</a>`).join("");
+}
+
+function renderRoute() {
+  if (!DATA) return;
+  renderNav();
+  const m = location.hash.match(/^#\/p\/(.+)$/);
+  $("main").innerHTML = m ? viewProjekt(m[1]) : viewUebersicht();
+  $("stamp").textContent = "Stand " + new Date(DATA.stand).toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+}
+
+async function lade(frisch = false) {
+  DATA = await fetch("/api/daten" + (frisch ? "?frisch" : "")).then((r) => r.json());
+  renderRoute();
+}
+
+window.addEventListener("hashchange", renderRoute);
+$("neuladen").onclick = () => lade(true);
+$("praes").onclick = () => document.body.classList.toggle("praes");
+window.addEventListener("keydown", (e) => { if (e.key === "p" && !e.metaKey && !e.ctrlKey) document.body.classList.toggle("praes"); });
+
 lade();
-setInterval(lade, 5 * 60 * 1000); // Anzeige alle 5 Min auffrischen (Server cacht 15 Min)
+setInterval(() => lade(), 5 * 60 * 1000); // Anzeige alle 5 Min auffrischen (Server cacht 15 Min)
 </script>
 </body>
 </html>

@@ -33,11 +33,17 @@ export async function sammle(properties) {
       const res = await fetch(url, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify(zeitraum),
+        body: JSON.stringify({ ...zeitraum, dimensions: ["date"] }),
       });
       if (!res.ok) throw new Error(`Search Console: ${p.gsc} nicht abrufbar (${res.status}) — Adresse exakt wie in der Search Console?`);
-      const zeile = (await res.json()).rows?.[0];
-      proId[p.id] = { klicks28t: Math.round(zeile?.clicks ?? 0), impressionen28t: Math.round(zeile?.impressions ?? 0) };
+      const zeilen = (await res.json()).rows ?? [];
+      // Tagesverlauf für die Diagramme, Summen für die Kacheln
+      const serie = zeilen.map((z) => ({ datum: z.keys[0], klicks: Math.round(z.clicks), impressionen: Math.round(z.impressions) }));
+      proId[p.id] = {
+        klicks28t: serie.reduce((s, e) => s + e.klicks, 0),
+        impressionen28t: serie.reduce((s, e) => s + e.impressionen, 0),
+        serie,
+      };
     })
   );
   return proId;

@@ -18,6 +18,7 @@ export const PROPERTIES = [
     umamiId: "",                            // Umami-Website-ID → datenquellen/umami.md
     gsc: "sc-domain:beispiel-shop.de",      // Search-Console-Adresse → datenquellen/google-search-console.md
     repo: "",                               // lokaler Projekt-Ordner → datenquellen/git-projekte.md
+    // continuePrompt: "…",                 // eigener Text für den „Weiter mit Claude"-Knopf (sonst automatisch)
   },
   {
     id: "beispiel-blog",
