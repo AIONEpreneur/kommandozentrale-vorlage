@@ -12,12 +12,18 @@
     --gut: #16a34a; --schlecht: #dc2626; --akzent-std: #7c5cff;
     --mono: ui-monospace, "SF Mono", Menlo, monospace;
   }
+  /* Dunkel: folgt der System-Einstellung — oder dem Schalter unten links (überschreibt das System) */
   @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
       --grund: #101319; --flaeche: #1a1f29; --einzug: #232a37; --text: #e8eaf0;
       --leise: #8b93a3; --blass: #626b7d; --linie: #2a3140; --linie-stark: #3a4356;
       --gut: #34d27b; --schlecht: #f87171;
     }
+  }
+  :root[data-theme="dark"] {
+    --grund: #101319; --flaeche: #1a1f29; --einzug: #232a37; --text: #e8eaf0;
+    --leise: #8b93a3; --blass: #626b7d; --linie: #2a3140; --linie-stark: #3a4356;
+    --gut: #34d27b; --schlecht: #f87171;
   }
   * { box-sizing: border-box; margin: 0; }
   body { background: var(--grund); color: var(--text); font: 14.5px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -113,6 +119,7 @@
     <div class="foot">
       <button id="neuladen">Neu laden</button>
       <button id="praes" title="Verdeckt Umsatzzahlen — z. B. beim Teilen des Bildschirms (Taste P)">◉ Präsentation</button>
+      <button id="thema" title="Zwischen hellem und dunklem Design wechseln">☾ Dunkel</button>
       <div class="stamp" id="stamp">–</div>
     </div>
   </aside>
@@ -285,6 +292,20 @@ async function lade(frisch = false) {
   DATA = await fetch("/api/daten" + (frisch ? "?frisch" : "")).then((r) => r.json());
   renderRoute();
 }
+
+/* Hell/Dunkel-Schalter: Standard ist die System-Einstellung, die Wahl wird gemerkt */
+function effektivesThema() {
+  return document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+}
+function setzeThema(t, merken = true) {
+  document.documentElement.dataset.theme = t;
+  if (merken) localStorage.setItem("kz-thema", t);
+  $("thema").textContent = t === "dark" ? "☀ Hell" : "☾ Dunkel";
+}
+const gemerkt = localStorage.getItem("kz-thema");
+if (gemerkt) setzeThema(gemerkt, false);
+else $("thema").textContent = effektivesThema() === "dark" ? "☀ Hell" : "☾ Dunkel";
+$("thema").onclick = () => setzeThema(effektivesThema() === "dark" ? "light" : "dark");
 
 window.addEventListener("hashchange", renderRoute);
 $("neuladen").onclick = () => lade(true);
