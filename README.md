@@ -6,40 +6,35 @@ Dieses Repo ist **kein fertiges Produkt, sondern ein Bauplan für Claude**: Du g
 
 ![Beispiel](https://raw.githubusercontent.com/AIONEpreneur/kommandozentrale-vorlage/main/starter/public/vorschau.png)
 
-## Schnellstart in 3 Schritten
+## Schnellstart — direkt in Claude Code, kein Terminal nötig
 
-**1. Repo holen** — im Terminal:
+**1. Claude Code öffnen** (die App auf deinem Rechner).
+
+**2. Diesen Auftrag einfügen:**
+
+> Hole dir das Repo https://github.com/AIONEpreneur/kommandozentrale-vorlage, lege es in meinem Projekte-Ordner ab, lies dort die CLAUDE.md und richte meine Kommandozentrale ein.
+
+**3. Claude erledigt den Rest:** Es holt das Repo, startet das Dashboard sofort mit Beispieldaten (http://localhost:4400 — Claude öffnet es dir), fragt dich nach deinen Projekten und Werkzeugen und verbindet dann eine Datenquelle nach der anderen. Du tippst **keinen einzigen Befehl** selbst — du beantwortest nur Claudes Fragen und machst die Klicks in deinen eigenen Konten (Zugänge gibt man nicht aus der Hand, auch Claude nicht).
+
+Du brauchst **keine Programmierkenntnisse**. Falls Node.js (kostenlos) noch fehlt, sagt Claude dir das und hilft bei der Installation.
+
+<details>
+<summary>Du arbeitest doch lieber selbst im Terminal? (optional)</summary>
 
 ```bash
 git clone https://github.com/AIONEpreneur/kommandozentrale-vorlage.git
 cd kommandozentrale-vorlage
-```
-
-**2. Sofort anschauen** (läuft ohne jede Einrichtung, mit Demo-Daten):
-
-```bash
 node starter/server.mjs
 ```
 
-Dann im Browser öffnen: **http://localhost:4400**
-
-**3. Claude übernehmen lassen** — Claude Code im Ordner starten und sagen:
-
-> Lies CLAUDE.md und richte meine Kommandozentrale ein.
-
-Claude fragt dich dann, welche Datenquellen du hast, und verbindet sie eine nach der anderen. Du brauchst dafür **keine Programmierkenntnisse** — nur die Zugänge zu deinen eigenen Werkzeugen.
-
-## Voraussetzungen
-
-- **Node.js** ab Version 18 — prüfen mit `node -v`, sonst von [nodejs.org](https://nodejs.org) installieren
-- **Claude Code** ([Anleitung](https://claude.com/claude-code)) — für die Einrichtung und spätere Erweiterungen
-- Keine weiteren Abhängigkeiten: kein `npm install`, keine Datenbank
+Dann http://localhost:4400 öffnen. Benötigt Node.js ab Version 18.
+</details>
 
 ## Was das Dashboard anzeigt
 
 | Bereich | Quelle | Was du brauchst |
 |---|---|---|
-| Besucher & Seitenaufrufe | [Umami](datenquellen/umami.md) | Umami-Konto (Cloud oder selbst gehostet) |
+| Besucher & Seitenaufrufe | [Google Analytics](datenquellen/google-analytics.md) oder [Umami](datenquellen/umami.md) | GA4 auf deiner Seite (haben die meisten) — oder ein Umami-Konto |
 | Google-Klicks & Impressionen | [Search Console](datenquellen/google-search-console.md) | Google-Konto mit bestätigter Domain |
 | Umsatz der letzten 30 Tage | [Stripe](datenquellen/stripe.md) | Stripe-Konto, Lese-Schlüssel |
 | Erreichbarkeit deiner Seiten | [Uptime-Check](datenquellen/uptime.md) | nichts — funktioniert sofort |

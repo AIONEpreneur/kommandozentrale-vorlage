@@ -134,6 +134,8 @@ const $ = (id) => document.getElementById(id);
 const fmt = (n) => (n == null ? "–" : new Intl.NumberFormat("de-DE").format(Math.round(n)));
 const eur = (n, w) => new Intl.NumberFormat("de-DE", { style: "currency", currency: (w || "eur").toUpperCase() }).format(n);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// Besucherzahlen je Projekt: aus Google Analytics ODER Umami — gleiche Datenform
+const besucher = (p) => p.ga4 || p.umami;
 
 /* ---------- Diagramme (pures SVG, keine Bibliothek) ---------- */
 function lineChart(reihen, { hoehe = 190 } = {}) {
@@ -171,9 +173,9 @@ function viewUebersicht() {
   const ps = DATA.properties;
   const sum = (fn) => ps.reduce((s, p) => s + (fn(p) || 0), 0);
   const kacheln = [];
-  if (DATA.quellen.umami) {
-    kacheln.push(kpi("Besucher · 7 Tage", fmt(sum((p) => p.umami?.besucher7t))));
-    kacheln.push(kpi("Besucher · 30 Tage", fmt(sum((p) => p.umami?.besucher30t)), fmt(sum((p) => p.umami?.aufrufe30t)) + " Seitenaufrufe"));
+  if (DATA.quellen.umami || DATA.quellen.ga4) {
+    kacheln.push(kpi("Besucher · 7 Tage", fmt(sum((p) => besucher(p)?.besucher7t))));
+    kacheln.push(kpi("Besucher · 30 Tage", fmt(sum((p) => besucher(p)?.besucher30t)), fmt(sum((p) => besucher(p)?.aufrufe30t)) + " Seitenaufrufe"));
   }
   if (DATA.quellen.gsc) {
     kacheln.push(kpi("Google-Klicks · 28 T.", fmt(sum((p) => p.gsc?.klicks28t))));
@@ -189,14 +191,14 @@ function viewUebersicht() {
   }
   // Neue globale Quelle? Hier eine Kachel ergänzen: if (DATA.global.meinequelle) …
 
-  const besucherReihen = ps.filter((p) => p.umami?.serie).map((p) => ({ name: p.name, farbe: p.accent, punkte: p.umami.serie }));
+  const besucherReihen = ps.filter((p) => besucher(p)?.serie).map((p) => ({ name: p.name, farbe: p.accent, punkte: besucher(p).serie }));
 
   const zeilen = ps.map((p) => `
     <tr class="rowlink" onclick="location.hash='#/p/${p.id}'">
       <td><div class="pname"><span class="dot" style="background:${p.accent}"></span>${esc(p.name)}</div></td>
       <td>${p.uptime ? `<span class="lamp ${p.uptime.ok ? "ok" : "bad"}"></span> <span class="leer">${p.uptime.ok ? p.uptime.ms + " ms" : "down"}</span>` : '<span class="leer">–</span>'}</td>
-      <td class="num">${p.umami ? fmt(p.umami.besucher7t) : "–"}</td>
-      <td>${p.umami?.serie ? sparkline(p.umami.serie, p.accent) : ""}</td>
+      <td class="num">${besucher(p) ? fmt(besucher(p).besucher7t) : "–"}</td>
+      <td>${besucher(p)?.serie ? sparkline(besucher(p).serie, p.accent) : ""}</td>
       <td class="num">${p.gsc ? fmt(p.gsc.klicks28t) : "–"}</td>
       <td class="num">${p.gsc ? fmt(p.gsc.impressionen28t) : "–"}</td>
       <td>${p.git ? `<span class="chip">${esc(p.git.branch)}</span><span class="leer">${esc(p.git.vor)}${p.git.offen ? " · " + p.git.offen + " offen" : ""}</span>` : '<span class="leer">–</span>'}</td>
@@ -221,9 +223,10 @@ function viewProjekt(id) {
   if (!p) return `<div class="pagehead"><h2>Projekt nicht gefunden</h2></div>`;
 
   const kacheln = [];
-  if (p.umami) {
-    kacheln.push(kpi("Besucher · 7 Tage", fmt(p.umami.besucher7t)));
-    kacheln.push(kpi("Besucher · 30 Tage", fmt(p.umami.besucher30t), fmt(p.umami.aufrufe30t) + " Seitenaufrufe"));
+  const b = besucher(p);
+  if (b) {
+    kacheln.push(kpi("Besucher · 7 Tage", fmt(b.besucher7t)));
+    kacheln.push(kpi("Besucher · 30 Tage", fmt(b.besucher30t), fmt(b.aufrufe30t) + " Seitenaufrufe"));
   }
   if (p.gsc) {
     kacheln.push(kpi("Google-Klicks · 28 T.", fmt(p.gsc.klicks28t)));
@@ -233,7 +236,7 @@ function viewProjekt(id) {
   // Neue Property-Quelle? Hier eine Kachel ergänzen: if (p.meinequelle) …
 
   const charts = [];
-  if (p.umami?.serie) charts.push(`<div class="card"><h3>Besucher je Tag <span class="hint">letzte 30 Tage</span></h3>${lineChart([{ name: "Besucher", farbe: p.accent, punkte: p.umami.serie }])}</div>`);
+  if (b?.serie) charts.push(`<div class="card"><h3>Besucher je Tag <span class="hint">letzte 30 Tage</span></h3>${lineChart([{ name: "Besucher", farbe: p.accent, punkte: b.serie }])}</div>`);
   if (p.gsc?.serie) charts.push(`<div class="card"><h3>Google-Klicks je Tag <span class="hint">letzte 28 Tage</span></h3>${lineChart([{ name: "Klicks", farbe: p.accent, punkte: p.gsc.serie.map((e) => ({ datum: e.datum, wert: e.klicks })) }])}</div>`);
 
   const prompt = p.continuePrompt || `Weiter am Projekt „${p.name}"${p.repo ? ` (Ordner: ${p.repo})` : ""}. Schau dir den aktuellen Stand an und schlage mir vor, was als Nächstes dran ist.`;

@@ -1,22 +1,23 @@
 # Anweisungen für Claude: Kommandozentrale einrichten
 
-Du hilfst einem Community-Mitglied, aus dieser Vorlage sein persönliches Portfolio-Dashboard zu bauen. Die Person ist **Solopreneur:in ohne Programmierkenntnisse** — erkläre in einfachem Deutsch, ohne Fachjargon, und führe Schritt für Schritt.
+Du hilfst einem Community-Mitglied, aus dieser Vorlage sein persönliches Portfolio-Dashboard zu bauen. Die Person ist **Solopreneur:in ohne Programmierkenntnisse und arbeitet nicht im Terminal** — sie arbeitet mit dir in Claude Code. Erkläre in einfachem Deutsch, ohne Fachjargon, und führe Schritt für Schritt.
+
+**Deshalb die wichtigste Regel zuerst: Führe jeden Befehl selbst aus.** Klonen, Server starten, Dateien anlegen, `node`-Aufrufe, das Dashboard im Browser öffnen — alles machst du. Bitte die Person niemals, etwas ins Terminal zu tippen oder eine Datei von Hand zu bearbeiten. Was die Person selbst macht, sind genau zwei Dinge: **deine Fragen beantworten** und **die Klicks in ihren eigenen Konten** (Google, Stripe & Co. — Zugänge gibt man nicht aus der Hand, auch dir nicht). Falls Node.js fehlt, hilf bei der Installation.
 
 ## Dein Vorgehen bei der Ersteinrichtung
 
 1. **Lies zuerst [BAUPLAN.md](BAUPLAN.md)** — dort steht, wie das System aufgebaut ist.
-2. **Starte den Demo-Modus**, damit die Person sofort etwas sieht:
-   `node starter/server.mjs` → http://localhost:4400
+2. **Starte den Demo-Modus** (`node starter/server.mjs`) und **öffne der Person das Dashboard im Browser** (http://localhost:4400), damit sie sofort sieht, wohin die Reise geht.
 3. **Frage die Person, welche Projekte sie hat** (Webseiten, Apps, Shops — alles mit einer Domain). Lege dann `starter/config.mjs` an: Kopie von `starter/config.beispiel.mjs`, Demo-Einträge durch die echten Projekte ersetzen.
-4. **Frage, welche Werkzeuge sie nutzt** — gehe die Tabelle im README durch: Umami? Google Search Console? Stripe? YouTube? Lokale Projekt-Ordner mit Git?
+4. **Frage, welche Werkzeuge sie nutzt** — gehe die Tabelle im README durch. Bei Besucherzahlen konkret fragen: „Hast du Google Analytics auf deiner Seite?" (haben die meisten → `google-analytics.md`). Nur wer keins hat oder bewusst ohne Google will, bekommt Umami empfohlen. Dann: Search Console? Stripe? YouTube? Lokale Projekt-Ordner mit Git?
 5. **Richte die Quellen einzeln ein**, eine nach der anderen, in dieser Reihenfolge (von leicht nach schwer):
    1. Uptime — funktioniert sofort, sobald `config.mjs` existiert
    2. Git — nur lokale Ordner-Pfade eintragen
    3. YouTube — ein kostenloser API-Schlüssel
-   4. Umami — API-Schlüssel oder Login-Daten
-   5. Stripe — eingeschränkter Lese-Schlüssel
-   6. Google Search Console — OAuth, der aufwendigste Schritt, zum Schluss
-   Für jede Quelle gibt es eine Anleitung in `datenquellen/` — folge ihr genau und begleite die Person durch die Klick-Schritte im jeweiligen Werkzeug.
+   4. Stripe — eingeschränkter Lese-Schlüssel
+   5. Umami — nur falls gewählt: API-Schlüssel oder Login-Daten
+   6. Google (Search Console + Analytics) — OAuth, der aufwendigste Schritt, zum Schluss; **eine** Anmeldung deckt beide Quellen ab
+   Für jede Quelle gibt es eine Anleitung in `datenquellen/` — folge ihr genau, führe die Befehle selbst aus und begleite die Person durch die Klick-Schritte im jeweiligen Werkzeug.
 6. **Nach jeder Quelle: Server neu starten und gemeinsam prüfen**, ob die Zahlen erscheinen. Erst dann zur nächsten Quelle.
 
 ## Regeln (nicht verhandelbar)

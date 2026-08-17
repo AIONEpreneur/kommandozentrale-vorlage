@@ -21,9 +21,11 @@ GOOGLE_CLIENT_ID=1234-abc.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=GOCSPX-xxxx
 ```
 
+**Tipp:** Wenn du auch [Google Analytics](google-analytics.md) anbinden willst, aktiviere im selben Zug die **„Google Analytics Data API"** mit — die Anmeldung unten gilt dann für beides.
+
 ## Schritt 2: Einmalig anmelden
 
-Im Terminal:
+Diesen Befehl führt Claude für dich aus:
 
 ```bash
 node starter/werkzeuge/google-login.mjs

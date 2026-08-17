@@ -26,6 +26,7 @@ const { PROPERTIES, PORT = 4400 } = await import(DEMO ? "./config.beispiel.mjs" 
 import * as uptime from "./quellen/uptime.mjs";
 import * as git from "./quellen/git.mjs";
 import * as umami from "./quellen/umami.mjs";
+import * as ga4 from "./quellen/ga4.mjs";
 import * as gsc from "./quellen/gsc.mjs";
 import * as stripe from "./quellen/stripe.mjs";
 import * as youtube from "./quellen/youtube.mjs";
@@ -33,7 +34,8 @@ import { demoDaten } from "./quellen/demo.mjs";
 
 // Quellen-Register: propertyweise Quellen füllen je Projekt eine Zeile,
 // globale Quellen füllen eine Kachel oben. Neue Quelle: hier eintragen.
-const PRO_PROPERTY = { uptime, git, umami, gsc };
+// Besucherzahlen kommen aus ga4 ODER umami — je Projekt, je nachdem was konfiguriert ist.
+const PRO_PROPERTY = { uptime, git, umami, ga4, gsc };
 const GLOBAL = { stripe, youtube };
 
 const CACHE_MS = 15 * 60 * 1000;

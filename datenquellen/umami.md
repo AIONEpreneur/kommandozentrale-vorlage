@@ -1,8 +1,8 @@
-# Umami — Besucher & Seitenaufrufe
+# Umami — Besucher & Seitenaufrufe (Alternative zu Google Analytics)
 
-**Was es zeigt:** Besucher und Seitenaufrufe der letzten 7 und 30 Tage, pro Projekt.
+**Was es zeigt:** Besucher und Seitenaufrufe der letzten 7 und 30 Tage plus Tagesverlauf, pro Projekt.
 
-**Was Umami ist:** Ein datenschutzfreundliches Web-Analytics-Werkzeug (Alternative zu Google Analytics, ohne Cookies). Falls du noch kein Analytics hast: [Umami Cloud](https://umami.is) hat einen kostenlosen Tarif und ist in 10 Minuten eingerichtet — Website anlegen, Tracking-Schnipsel in deine Seite einbauen, fertig.
+**Für wen:** Du hast schon Google Analytics auf deiner Seite? Dann nimm einfach [google-analytics.md](google-analytics.md) — fertig. Umami ist die **datenschutzfreundliche Alternative** (ohne Cookies, ohne Google): interessant, wenn du neu mit Web-Analytics startest oder bewusst wechseln willst. [Umami Cloud](https://umami.is) hat einen kostenlosen Tarif und ist in 10 Minuten eingerichtet — Website anlegen, Tracking-Schnipsel einbauen, fertig. **Eins von beiden reicht** — pro Projekt wird genau eine Besucherquelle angezeigt.
 
 ## Was du brauchst
 

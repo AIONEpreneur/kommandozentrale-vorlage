@@ -32,7 +32,7 @@ const authUrl =
     client_id: ID,
     redirect_uri: REDIRECT,
     response_type: "code",
-    scope: "https://www.googleapis.com/auth/webmasters.readonly",
+    scope: "https://www.googleapis.com/auth/webmasters.readonly https://www.googleapis.com/auth/analytics.readonly",
     access_type: "offline",
     prompt: "consent",
   });

@@ -15,7 +15,8 @@ export const PROPERTIES = [
     name: "Beispiel-Shop",                  // Anzeigename im Dashboard
     domain: "beispiel-shop.de",             // für Uptime-Check und Link
     accent: "#7c5cff",                      // Akzentfarbe der Kachel (beliebiger Hex-Wert)
-    umamiId: "",                            // Umami-Website-ID → datenquellen/umami.md
+    ga4: "",                                // Google-Analytics-Property-ID → datenquellen/google-analytics.md
+    umamiId: "",                            // ODER Umami-Website-ID → datenquellen/umami.md (eins von beiden reicht)
     gsc: "sc-domain:beispiel-shop.de",      // Search-Console-Adresse → datenquellen/google-search-console.md
     repo: "",                               // lokaler Projekt-Ordner → datenquellen/git-projekte.md
     // continuePrompt: "…",                 // eigener Text für den „Weiter mit Claude"-Knopf (sonst automatisch)
