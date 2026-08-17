@@ -36,7 +36,7 @@ Neue Datenquelle anbinden (z. B. Newsletter-Tool, Podcast-Statistik):
    `sammle(properties)` (holt die Daten und gibt ein einfaches Objekt zurück).
    Schau dir `starter/quellen/youtube.mjs` als kleinstes Beispiel an.
 2. Modul in `starter/server.mjs` in die `QUELLEN`-Liste eintragen.
-3. Anzeige in `starter/public/index.html` ergänzen — dort ist pro Bereich markiert, wo neue Kacheln oder Zeilen hingehören.
+3. Anzeige in `starter/public/index.html` ergänzen — dort ist pro Bereich markiert, wo neue Kacheln oder Zeilen hingehören. **Wichtig:** Zeigt die neue Quelle sensible Zahlen (Umsätze, Kundenzahlen, Namen), umschließe sie mit `class="vertraulich"` — dann macht der Präsentationsmodus (Knopf unten links bzw. Taste P) sie beim Bildschirm-Teilen unscharf.
 4. Neue .env-Variablen in `starter/.env.beispiel` dokumentieren (ohne echte Werte!).
 
 Optische Anpassungen (Farben, Reihenfolge, eigene Kacheln) sind ausdrücklich erwünscht — alles liegt in `starter/public/index.html`, einer einzigen Datei.
